@@ -53,11 +53,11 @@ def clean_data(df):
     # (1.2) Convert category values to just numbers 0 or 1
     for column in categories:
     
-    ### Set each value to be the last character of the string
-    categories[column] = list(i[-1] for i in categories[column])
+        ### Set each value to be the last character of the string
+        categories[column] = list(i[-1] for i in categories[column])
     
-    ### Convert column from string to numeric
-    categories[column] = categories[column].astype('int32')
+        ### Convert column from string to numeric
+        categories[column] = categories[column].astype('int32')
 
     # (1.3) Replace categories column in df with new category columns
     ### Drop the original categories column from `df`
