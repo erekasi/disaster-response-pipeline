@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 import copy
+import pickle
 
 import time
 from datetime import datetime
@@ -23,12 +24,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
-
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report 
 from sklearn.model_selection import GridSearchCV
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import recall_score
 
 
 def load_data(database_filepath):
@@ -42,7 +44,7 @@ def load_data(database_filepath):
     OUT:
         X - array of message texts
         Y - array of binary labels for each category per message record
-        category_names - list of name of the target values
+        category_names - list of name of the target variables
     '''
     
     # Create engine where the data comes from
@@ -102,14 +104,96 @@ def build_model():
     OUT:
         model - best estimator of the hyper-tuned model
     '''
+    # Build a machine learning pipeline
+    pipeline_rf = Pipeline([
+        ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=100)))
+    ])
+
+    # Set hyper-parameters for tuning
+    parameters = {
+    'clf__estimator__max_depth': [10, 50]
+    }
+
+    # Set up hyper-tuning model
+    cv = GridSearchCV(pipeline_rf, param_grid=parameters, cv=4)
     
+    # Hyper-tune the model with grid search
+    start1 = time.time()
+    print('----- Start time of training the model: ', datetime.fromtimestamp(start1), ' -----')
+    cv.fit(X_train, Y_train)
+    end1 = time.time()
+    print('----- Training the random forest multi-output model took: {} minute(s) and {} second(s).'.format((end1-start1)//60, int((end1-start1)%60)))
+    
+    # Retreive the best estimator model
+    model = cv.best_estimator_
+
+    return model
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+    '''
+    The function evaluates a multi-output binary classification model.
+    
+    IN:
+        model - multi-output classification model
+        X_test - test set of predictors (text message)
+        Y_test - test set of the target variables
+        category_names - list of name of the target variables
+    
+    OUT:
+        precision, recall, F1-score and accuracy - evaluation metrics for each target variable
+        avg_accuracy - average of accuracy per target variable, printed
+        avg_recall - average of recall (or sensitivity) per target variable, printed
+    '''
+
+    # Make prediction on the test set
+    Y_pred = model.predict(X_test)
+
+    # Print precision, recall, F1-score per label per output
+    # and accuracy score per output
+    print('\n')
+    print('======= Report on the Hyper-tuned multi-output random forest classifier model =======')
+    print('\n')
+
+    for i, col in enumerate(category_names):
+        print('({0}) category: {1}'.format(i+1, col))
+        print('\n')
+        print(classification_report(Y_test.iloc[:, i].values, Y_pred[:, i]))
+        print('Accuracy score = %.4f' %accuracy_score(Y_test.iloc[:, i].values, Y_pred[:,i]))
+        print('----------------------------')
+        print('\n')
+    
+    # Calculate and print average accuracy score
+    all_accuracy = []
+    for i in range(len(category_names)):
+        all_accuracy.append(accuracy_score(Y_test.iloc[:, i].values, Y_pred[:,i]))
+    avg_accuracy = sum(all_accuracy) / len(all_accuracy)
+    print('---- Average accuracy of the hyper-tuned model is {} ---- '.format(round(avg_accuracy,4)))
+    
+    # Calculate average recall
+    all_recall = []
+    for i in range(len(category_names)):
+        all_recall.append(recall_score(Y_test.iloc[:, i].values, Y_pred[:,i], average='macro'))
+    print('---- Average recall with macro average for the hyper-tuned model is %.4f ----' %np.mean(all_recall)
 
 
 def save_model(model, model_filepath):
-    pass
+    '''
+    The function saves the model using pickle.
+    
+    IN:
+       model - hyper-tuned multi-output binary classification model
+       model_filepath - filepath to where the model has to be saved
+    OUT:
+        The model gets saved under the name inserted as model_filepath.
+    '''
+
+    # Open a file named model_filepath with wb as write bytes mode
+    # and store the reference to that file in variable f.
+    # Save the object (the model) in that file.
+    with open(model_filepath, 'wb') as f:
+        pickle.dump(model, f)
 
 
 def main():
