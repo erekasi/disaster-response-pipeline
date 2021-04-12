@@ -1,3 +1,4 @@
+#%%
 # Import libraries
 import sys
 import numpy as np
@@ -6,6 +7,7 @@ from sqlalchemy import create_engine
 
 pd.set_option('display.max_columns', None)
 
+#%%
 def load_data(messages_filepath, categories_filepath):
     '''
     The function loads the messages and the categories datasets
@@ -129,3 +131,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+# %%

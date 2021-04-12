@@ -1,3 +1,4 @@
+#%%
 # Import libraries
 import sys
 import numpy as np
@@ -7,10 +8,10 @@ import pickle
 
 import time
 from datetime import datetime
-
 import sqlite3
 from sqlalchemy import create_engine
 
+#%%
 # NLP relevant libraries
 import re #library to remove punctuation with a regular expression (regex)
 import nltk
@@ -104,6 +105,9 @@ def build_model():
     OUT:
         model - best estimator of the hyper-tuned model
     '''
+    #Create train and test set
+    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+
     # Build a machine learning pipeline
     pipeline_rf = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
