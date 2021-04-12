@@ -175,8 +175,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
     all_recall = []
     for i in range(len(category_names)):
         all_recall.append(recall_score(Y_test.iloc[:, i].values, Y_pred[:,i], average='macro'))
-    print('---- Average recall with macro average for the hyper-tuned model is %.4f ----' %np.mean(all_recall)
-
+    print('---- Average recall with macro average for the hyper-tuned model is %.4f ----' %np.mean(all_recall))
 
 def save_model(model, model_filepath):
     '''
@@ -194,7 +193,6 @@ def save_model(model, model_filepath):
     # Save the object (the model) in that file.
     with open(model_filepath, 'wb') as f:
         pickle.dump(model, f)
-
 
 def main():
     if len(sys.argv) == 3:
