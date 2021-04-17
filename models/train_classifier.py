@@ -105,8 +105,6 @@ def build_model():
     OUT:
         model - best estimator of the hyper-tuned model
     '''
-    #Create train and test set
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 
     # Build a machine learning pipeline
     pipeline_rf = Pipeline([
@@ -121,17 +119,7 @@ def build_model():
     }
 
     # Set up hyper-tuning model
-    cv = GridSearchCV(pipeline_rf, param_grid=parameters, cv=4)
-    
-    # Hyper-tune the model with grid search
-    start1 = time.time()
-    print('----- Start time of training the model: ', datetime.fromtimestamp(start1), ' -----')
-    cv.fit(X_train, Y_train)
-    end1 = time.time()
-    print('----- Training the random forest multi-output model took: {} minute(s) and {} second(s).'.format((end1-start1)//60, int((end1-start1)%60)))
-    
-    # Retreive the best estimator model
-    model = cv.best_estimator_
+    model = GridSearchCV(pipeline_rf, param_grid=parameters, cv=4)
 
     return model
 
@@ -209,8 +197,13 @@ def main():
         model = build_model()
         
         print('Training model...')
+        # Hyper-tune the model with grid search
+        start1 = time.time()
+        print('----- Start time of training the model: ', datetime.fromtimestamp(start1), ' -----')
         model.fit(X_train, Y_train)
-        
+        end1 = time.time()
+        print('----- Training the random forest multi-output model took: {} minute(s) and {} second(s).'.format((end1-start1)//60, int((end1-start1)%60)))
+    
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
