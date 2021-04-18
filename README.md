@@ -23,20 +23,20 @@ The project cosists of three phases:
 
 **1. Data processing** <br>
     *Figure Eight* provided a set of disaster messages, which a message classification model could be trained on. The data was available in two datasets: messages and categories. The processing of these required the following steps:
-    - load and merge datasets into a pandas dataframe
-    - clean by splitting categories into separate features, creating dummy variables from the category values
-    - convert string datatypes to numeric values
-    - remove duplicates.
+- load and merge datasets into a pandas dataframe
+- clean by splitting categories into separate features, creating dummy variables from the category values
+- convert string datatypes to numeric values
+- remove duplicates.
 
    At the end of this phase, data was saved into a SQLite database.
     
 **2. Model training** <br>
     After loading the already processed data into a pandas dataframe, features were separated into predictor (X = messages) and target (Y = category variables) datasets. Both datasets were split into training and test sets.<br>
     A machine learning pipeline was set up that consisted of the following:
-    - word tokenization - to split messages into words, normalizes these to lower case, skim these from *stop words* and punctuation, and lemmatize words
-    - count vectorization - to count the number of occurences of each term (here: word) in each document (here: message)
-    - TF-IDF transformation - to divide term frequency by document frequency, i.e. multiple by inverse document frequency (idf)
-    - classification - to learn which categories a message belong to, by appliying a random forest classifier in a multi-output classifier (as there are many categories for which prediction per message needed to be made).
+- word tokenization - to split messages into words, normalizes these to lower case, skim these from *stop words* and punctuation, and lemmatize words
+- count vectorization - to count the number of occurences of each term (here: word) in each document (here: message)
+- TF-IDF transformation - to divide term frequency by document frequency, i.e. multiple by inverse document frequency (idf)
+- classification - to learn which categories a message belong to, by appliying a random forest classifier in a multi-output classifier (as there are many categories for which prediction per message needed to be made).
 
 Grid-search was applied to tune one of the hyperparameters of the model (max depth of an estimator in a random forest model).<br>
 Finally, the model was evaluated by precision, recall, F1-score and accuracy  on the test set.<br>
