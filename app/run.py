@@ -1,7 +1,9 @@
 #%%
+# Import libraries
 import json
 import plotly
 import pandas as pd
+import numpy as np
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -43,28 +45,59 @@ model = joblib.load("../models/classifier.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
+    genre_prop = round(100*genre_counts/genre_counts.sum(), 2)
     genre_names = list(genre_counts.index)
+    category_names = df.iloc[:, 4:].columns
+    category_sums = (df.iloc[:, 4:] !=0).sum().values
     
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
+        {
+            "data": [
+              {
+                "type": "pie",
+                "uid": "f4de1f",
+                "hole": 0.4,
+                "name": "Genre composition (%)",
+                "pull": 0,
+                "domain": {
+                  "x": genre_prop,
+                  "y": genre_names
+                },
+                "marker": {
+                  "colors": [
+                    "#581845",
+                    "#900c3f",
+                    "#c70039"
+                   ]
+                },
+                "textinfo": "label+value",
+                "hoverinfo": "all",
+                "labels": genre_names,
+                "values": genre_prop
+              }
+            ],
+            "layout": {
+              "title": "Distribution of messages by genre"
+            }
+        },
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=category_names,
+                    y=category_sums
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Prevalence of message categories',
                 'yaxis': {
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "Category",
+                    'tickangle': 45
                 }
             }
         }
