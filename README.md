@@ -35,7 +35,7 @@ The project cosists of three phases:
     A machine learning pipeline was set up that consisted of the following:
 - word tokenization - to split messages into words, normalizes these to lower case, skim these from *stop words* and punctuation, and lemmatize words
 - count vectorization - to count the number of occurences of each term (here: word) in each document (here: message)
-- TF-IDF transformation - to divide term frequency by document frequency, i.e. multiple by inverse document frequency (idf)
+- TF-IDF transformation - to divide term frequency by document frequency, i.e. multiply by inverse document frequency (idf)
 - classification - to learn which categories a message belong to, by appliying a random forest classifier in a multi-output classifier (as there are many categories for which prediction per message needed to be made).
 
 Grid-search was applied to tune one of the hyperparameters of the model (max depth of an estimator in a random forest model).<br>
